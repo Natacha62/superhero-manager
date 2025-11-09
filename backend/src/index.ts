@@ -13,7 +13,11 @@ connectDB();
 const app = express();
 
 // Middlewares globaux
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000', // ← autorise ton frontend React
+  credentials: true
+}));
+
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads'))); // pour servir les images
 
