@@ -7,20 +7,41 @@ interface HeroCardProps {
 }
 
 export default function HeroCard({ hero }: HeroCardProps) {
+  const imagePath = `http://localhost:5000/uploads/${hero.images?.md ?? 'md/default.jpg'}`;
+
   return (
     <div className="hero-card">
       <img
-        src={hero.images?.md || '/images/default.jpg'}
-        alt={hero.name}
-        onError={(e) => (e.currentTarget.src = '/images/default.jpg')}
+        src={imagePath}
+        alt={hero.name ?? 'Héros'}
+        loading="lazy"
+        onError={(e) => {
+          e.currentTarget.onerror = null;
+          e.currentTarget.src = 'http://localhost:5000/uploads/md/default.jpg';
+        }}
+        className="hero-image"
       />
+
       <div className="hero-info">
-        <h3>{hero.name}</h3>
-        <p><strong>Nom complet :</strong> {hero.biography.fullName}</p>
-        <p><strong>Pouvoir :</strong> {hero.powerstats.power}</p>
-        <Link to={`/hero/${hero.id}`} className="details-button">
-          Détails
-        </Link>
+        <h3 className="hero-name">{hero.name ?? 'Nom inconnu'}</h3>
+        <p className="hero-fullname">
+          <strong>Nom complet :</strong> {hero.biography?.fullName || 'Inconnu'}
+        </p>
+        <p className="hero-universe">
+          <strong>Univers :</strong> {hero.biography?.publisher || 'Inconnu'}
+        </p>
+        <p className="hero-power">
+          <strong>Pouvoir :</strong> {hero.powerstats?.power ?? 'N/A'}
+        </p>
+      </div>
+
+      <div className="hero-actions">
+        {/* ✅ Bouton fonctionnel avec ID MongoDB */}
+        {hero._id && (
+          <Link to={`/hero/${hero._id}`} className="details-button">
+            Voir détails
+          </Link>
+        )}
       </div>
     </div>
   );

@@ -1,8 +1,18 @@
+import { Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
-import './styles/app.css';
+import HeroDetails from './pages/HeroDetails';
 
-function App() {
-  return <Dashboard />;
+export default function App() {
+  return (
+    <>
+      <Navbar />
+      <main>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/hero/:id" element={<HeroDetails />} />
+        </Routes>
+      </main>
+    </>
+  );
 }
-
-export default App;

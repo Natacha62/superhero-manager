@@ -1,39 +1,66 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import '../styles/index.css';
 import { useAuth } from '../hooks/useAuth';
-import './styles/app.css';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   return (
-    <nav className="navbar">
-      <Link to="/" className="nav-logo">🦸 SuperHeroes</Link>
+    <nav className="custom-navbar">
+      <ul className="navbar-list">
+        {/* --- Liens visibles par tous --- */}
+        <li>
+          <Link to="/" className="navbar-link active">Superhéros</Link>
+        </li>
+        <li>
+          <Link to="/" className="navbar-link faded">Liste des superhéros</Link>
+        </li>
 
-      <div className="nav-links">
-        <Link to="/">Accueil</Link>
+        {/* --- Liens selon le rôle --- */}
+        {user && (
+          <>
+            {/* ADMIN */}
+            {user.role === 'admin' && (
+              <>
+                <li>
+                  <Link to="/add-hero" className="navbar-link faded">Ajouter un héros</Link>
+                </li>
+                <li>
+                  <Link to="/logs" className="navbar-link faded">Logs</Link>
+                </li>
+              </>
+            )}
 
-        {user && (user.role === 'admin' || user.role === 'editor') && (
-          <Link to="/add">Ajouter un héros</Link>
+            {/* ÉDITEUR */}
+            {user.role === 'editeur' && (
+              <li>
+                <Link to="/add-hero" className="navbar-link faded">Ajouter un héros</Link>
+              </li>
+            )}
+
+            {/* Informations utilisateur */}
+            <li className="navbar-user">
+              Connecté : {user.username} ({user.role})
+            </li>
+
+            <li>
+              <button className="navbar-button" onClick={logout}>Déconnexion</button>
+            </li>
+          </>
         )}
 
-        {user ? (
+        {/* --- Liens si non connecté --- */}
+        {!user && (
           <>
-            <span className="nav-user">Connecté : {user.username} ({user.role})</span>
-            <button onClick={handleLogout}>Déconnexion</button>
-          </>
-        ) : (
-          <>
-            <Link to="/login">Connexion</Link>
-            <Link to="/register">Inscription</Link>
+            <li>
+              <Link to="/login" className="navbar-link faded">Connexion</Link>
+            </li>
+            <li>
+              <Link to="/register" className="navbar-link faded">Inscription</Link>
+            </li>
           </>
         )}
-      </div>
+      </ul>
     </nav>
   );
 }

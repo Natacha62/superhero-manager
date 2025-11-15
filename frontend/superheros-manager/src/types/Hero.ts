@@ -1,4 +1,6 @@
 export interface SuperHero {
+  alias: any;
+  _id?: string; // ← ajouté pour MongoDB
   id: number;
   name: string;
   slug: string;

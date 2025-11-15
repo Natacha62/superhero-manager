@@ -1,22 +1,40 @@
 import axios from 'axios';
 import type { SuperHero } from '../types/Hero';
 
-const API_BASE_URL = 'http://localhost:5000';
+// ✅ Si le proxy est bien configuré, pas besoin d'URL complète
+const API_BASE_URL = '/api/heroes';
+
+// ✅ Type de réponse attendu par l'API
+interface SuperHeroResponse {
+  superheros: SuperHero[];
+}
 
 // 🔓 Lecture publique
-export const getSuperHeroes = async (): Promise<SuperHero[]> => {
-  const res = await axios.get(`${API_BASE_URL}/api/heroes`);
-  return res.data.superheros;
+export const getSuperHeroes = async (): Promise<SuperHeroResponse> => {
+  try {
+    const res = await axios.get(API_BASE_URL);
+    console.log('✅ Données reçues :', res.data);
+    return res.data; // res.data est { superheros: [...] }
+  } catch (error) {
+    console.error('❌ Erreur API :', error);
+    return { superheros: [] };
+  }
 };
 
-export const getHeroById = async (id: number): Promise<SuperHero> => {
-  const res = await axios.get(`${API_BASE_URL}/api/heroes/${id}`);
-  return res.data;
+
+export const getHeroById = async (id: string): Promise<SuperHero> => {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/${id}`);
+    console.log('✅ Données reçues pour getHeroById:', res.data);
+    return res.data.hero;
+  } catch (error) {
+    console.error('❌ Erreur getHeroById :', error);
+    throw error;
+  }
 };
 
-// 🔐 Création (admin + editor)
 export const createHero = async (hero: FormData, token: string): Promise<SuperHero> => {
-  const res = await axios.post(`${API_BASE_URL}/api/heroes`, hero, {
+  const res = await axios.post(API_BASE_URL, hero, {
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'multipart/form-data'
@@ -25,9 +43,8 @@ export const createHero = async (hero: FormData, token: string): Promise<SuperHe
   return res.data;
 };
 
-// 🔐 Modification (admin + editor)
-export const updateHero = async (id: number, hero: FormData, token: string): Promise<SuperHero> => {
-  const res = await axios.put(`${API_BASE_URL}/api/heroes/${id}`, hero, {
+export const updateHero = async (id: string, hero: FormData, token: string): Promise<SuperHero> => {
+  const res = await axios.put(`${API_BASE_URL}/${id}`, hero, {
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'multipart/form-data'
@@ -36,9 +53,8 @@ export const updateHero = async (id: number, hero: FormData, token: string): Pro
   return res.data;
 };
 
-// 🔐 Suppression (admin uniquement)
-export const deleteHero = async (id: number, token: string): Promise<{ message: string }> => {
-  const res = await axios.delete(`${API_BASE_URL}/api/heroes/${id}`, {
+export const deleteHero = async (id: string, token: string): Promise<{ message: string }> => {
+  const res = await axios.delete(`${API_BASE_URL}/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`
     }

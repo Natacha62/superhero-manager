@@ -14,12 +14,15 @@ const app = express();
 
 // Middlewares globaux
 app.use(cors({
-  origin: 'http://localhost:3000', // ← autorise ton frontend React
+  origin: 'http://localhost:5173',
   credentials: true
 }));
 
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, '../uploads'))); // pour servir les images
+
+// ✅ Sert les fichiers statiques depuis src/uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads', 'images')));
+
 
 // Routes API
 app.use('/api/auth', authRoutes);
