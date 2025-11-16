@@ -5,62 +5,52 @@ import { useAuth } from '../hooks/useAuth';
 export default function Navbar() {
   const { user, logout } = useAuth();
 
+  const roleLabel: Record<string, string> = {
+    admin: 'Administrateur',
+    editor: 'Éditeur',
+    user: 'Utilisateur'
+  };
+
+  // On mappe le rôle vers une classe CSS
+  const roleClass = user
+    ? `navbar-${user.role}` // admin → navbar-admin, editor → navbar-editor, user → navbar-user
+    : 'navbar-guest';
+
   return (
-    <nav className="custom-navbar">
-      <ul className="navbar-list">
-        {/* --- Liens visibles par tous --- */}
-        <li>
-          <Link to="/" className="navbar-link active">Superhéros</Link>
-        </li>
-        <li>
-          <Link to="/" className="navbar-link faded">Liste des superhéros</Link>
-        </li>
+    <nav className={`custom-navbar ${roleClass}`}>
+      <div className="nav-inner">
+        <ul className="navbar-list">
+          <li><Link to="/" className="navbar-link active">Superhéros</Link></li>
+          <li><Link to="/" className="navbar-link faded">Liste des superhéros</Link></li>
 
-        {/* --- Liens selon le rôle --- */}
-        {user && (
-          <>
-            {/* ADMIN */}
-            {user.role === 'admin' && (
-              <>
-                <li>
-                  <Link to="/add-hero" className="navbar-link faded">Ajouter un héros</Link>
-                </li>
-                <li>
-                  <Link to="/logs" className="navbar-link faded">Logs</Link>
-                </li>
-              </>
-            )}
+          {user && (
+            <>
+              {user.role === 'admin' && (
+                <>
+                  <li><Link to="/add-hero" className="navbar-link faded">Ajouter un héros</Link></li>
+                  <li><Link to="/logs" className="navbar-link faded">Logs</Link></li>
+                </>
+              )}
 
-            {/* ÉDITEUR */}
-            {user.role === 'editeur' && (
-              <li>
-                <Link to="/add-hero" className="navbar-link faded">Ajouter un héros</Link>
+              {user.role === 'editor' && (
+                <li><Link to="/add-hero" className="navbar-link faded">Ajouter un héros</Link></li>
+              )}
+
+              <li className="navbar-welcome">
+                Bienvenue <strong>{user.username}</strong>{' '}
+                <em>({roleLabel[user.role] ?? user.role})</em>
               </li>
-            )}
+              <li>
+                <button className="navbar-button" onClick={logout}>Déconnexion</button>
+              </li>
+            </>
+          )}
 
-            {/* Informations utilisateur */}
-            <li className="navbar-user">
-              Connecté : {user.username} ({user.role})
-            </li>
-
-            <li>
-              <button className="navbar-button" onClick={logout}>Déconnexion</button>
-            </li>
-          </>
-        )}
-
-        {/* --- Liens si non connecté --- */}
-        {!user && (
-          <>
-            <li>
-              <Link to="/login" className="navbar-link faded">Connexion</Link>
-            </li>
-            <li>
-              <Link to="/register" className="navbar-link faded">Inscription</Link>
-            </li>
-          </>
-        )}
-      </ul>
+          {!user && (
+            <li><Link to="/login" className="navbar-link faded">Connexion / Inscription</Link></li>
+          )}
+        </ul>
+      </div>
     </nav>
   );
 }

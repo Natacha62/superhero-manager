@@ -49,7 +49,7 @@ export default function Dashboard() {
 
   return (
     <div className="container mt-4">
-      <h2 className="mb-4">Liste des héros</h2>
+      <h2 className="mb-4">Liste des superhéros</h2>
       <SearchBar onSearch={handleSearch} />
       {loading ? (
         <p>Chargement des héros...</p>

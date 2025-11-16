@@ -1,16 +1,35 @@
 import { Link } from 'react-router-dom';
 import '../styles/app.css';
 import type { SuperHero } from '../types/Hero';
+import { useAuth } from '../hooks/useAuth'; // ✅ ajoute ton hook d’auth
 
 interface HeroCardProps {
   hero: SuperHero;
+  onDelete?: (id: string) => void;
 }
 
-export default function HeroCard({ hero }: HeroCardProps) {
+export default function HeroCard({ hero, onDelete }: HeroCardProps) {
   const imagePath = `http://localhost:5000/uploads/${hero.images?.md ?? 'md/default.jpg'}`;
+
+  const { user } = useAuth(); // ✅ récupère l’utilisateur connecté
+  const canDelete = user?.role === 'admin'; // ✅ seul admin peut supprimer
+
+  const handleDelete = () => {
+    const rawId = hero._id ?? hero.id;
+    const id = rawId != null ? String(rawId) : null;
+
+    if (!id) {
+      console.warn("ID du héros introuvable");
+      return;
+    }
+    if (window.confirm(`Supprimer ${hero.name} ?`)) {
+      onDelete?.(id);
+    }
+  };
 
   return (
     <div className="hero-card">
+      {/* Image */}
       <img
         src={imagePath}
         alt={hero.name ?? 'Héros'}
@@ -22,6 +41,7 @@ export default function HeroCard({ hero }: HeroCardProps) {
         className="hero-image"
       />
 
+      {/* Infos */}
       <div className="hero-info">
         <h3 className="hero-name">{hero.name ?? 'Nom inconnu'}</h3>
         <p className="hero-fullname">
@@ -35,12 +55,17 @@ export default function HeroCard({ hero }: HeroCardProps) {
         </p>
       </div>
 
-      <div className="hero-actions">
-        {/* ✅ Bouton fonctionnel avec ID MongoDB */}
-        {hero._id && (
-          <Link to={`/hero/${hero._id}`} className="details-button">
-            Voir détails
-          </Link>
+      {/* Actions */}
+      <div className={`hero-actions ${canDelete ? '' : 'centered'}`}>
+        <Link to={`/hero/${hero._id ?? hero.id}`} className="details-button">
+          Voir détails
+        </Link>
+
+        {/* ✅ Bouton Supprimer visible uniquement pour admin */}
+        {canDelete && (
+          <button onClick={handleDelete} className="delete-button">
+            🗑️ Supprimer
+          </button>
         )}
       </div>
     </div>

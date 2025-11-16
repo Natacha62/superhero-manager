@@ -3,13 +3,19 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 
-// ✅ Inscription
+// 🔐 Inscription
 export const registerUser = async (req: Request, res: Response) => {
   const { username, password, role } = req.body;
+  console.log("📥 Données reçues register:", req.body);
 
   try {
     if (!username || !password || !role) {
       return res.status(400).json({ message: 'Tous les champs sont requis' });
+    }
+
+    const allowedRoles = ['admin', 'editor', 'user'];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({ message: 'Rôle invalide' });
     }
 
     const existingUser = await User.findOne({ username });
@@ -18,19 +24,18 @@ export const registerUser = async (req: Request, res: Response) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-
-    const newUser = new User({
-      username,
-      passwordHash,
-      role,
-      createdAt: new Date()
-    });
-
+    const newUser = new User({ username, passwordHash, role });
     await newUser.save();
+
+    console.log("🔑 JWT_SECRET utilisé:", process.env.JWT_SECRET);
+
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ message: 'Configuration serveur invalide (JWT)' });
+    }
 
     const token = jwt.sign(
       { id: newUser._id, role: newUser.role },
-      process.env.JWT_SECRET!,
+      process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
@@ -43,15 +48,16 @@ export const registerUser = async (req: Request, res: Response) => {
         role: newUser.role
       }
     });
-  } catch (error) {
-    console.error('Erreur lors de l’inscription :', error);
-    res.status(500).json({ message: 'Erreur serveur' });
+  } catch (error: any) {
+    console.error('❌ Erreur serveur register:', error.message, error.stack);
+    res.status(500).json({ message: 'Erreur serveur', error: error.message });
   }
 };
 
-// ✅ Connexion
+// 🔐 Connexion
 export const loginUser = async (req: Request, res: Response) => {
   const { username, password } = req.body;
+  console.log("📥 Données reçues login:", req.body);
 
   try {
     if (!username || !password) {
@@ -68,9 +74,15 @@ export const loginUser = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'Mot de passe incorrect' });
     }
 
+    console.log("🔑 JWT_SECRET utilisé:", process.env.JWT_SECRET);
+
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ message: 'Configuration serveur invalide (JWT)' });
+    }
+
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET!,
+      process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
@@ -83,18 +95,34 @@ export const loginUser = async (req: Request, res: Response) => {
         role: user.role
       }
     });
-  } catch (error) {
-    console.error('Erreur lors de la connexion :', error);
-    res.status(500).json({ message: 'Erreur serveur' });
+  } catch (error: any) {
+    console.error('❌ Erreur serveur login:', error.message, error.stack);
+    res.status(500).json({ message: 'Erreur serveur', error: error.message });
   }
 };
 
-// ✅ Vérification du token
-export const verifyUserToken = (req: Request & { user?: { id?: string; username?: string; role?: string } }, res: Response) => {
+// 🔍 Vérification du token
+export const verifyUserToken = (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  console.log("📥 Header reçu verify:", authHeader);
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Token manquant ou invalide' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
   try {
-    const user = req.user;
-    res.status(200).json({ message: 'Token valide', user });
-  } catch (error) {
-    res.status(401).json({ message: 'Token invalide' });
+    console.log("🔑 JWT_SECRET utilisé:", process.env.JWT_SECRET);
+
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ message: 'Configuration serveur invalide (JWT)' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.status(200).json({ message: 'Token valide', user: decoded });
+  } catch (error: any) {
+    console.error('❌ Erreur serveur verify:', error.message);
+    res.status(403).json({ message: 'Token invalide ou expiré', error: error.message });
   }
 };

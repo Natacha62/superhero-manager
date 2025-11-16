@@ -12,28 +12,28 @@ connectDB();
 
 const app = express();
 
-// Middlewares globaux
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true
 }));
-
 app.use(express.json());
 
-// ✅ Sert les fichiers statiques depuis src/uploads
+// ✅ Sert tout le dossier uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads', 'images')));
 
 
-// Routes API
 app.use('/api/auth', authRoutes);
 app.use('/api/heroes', heroRoutes);
 
-// Route de test
 app.get('/', (req, res) => {
   res.send('🚀 SuperHeroManager API est en ligne');
 });
 
-// Lancement du serveur
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('❌ Erreur non gérée :', err.message);
+  res.status(500).json({ message: 'Erreur serveur', error: err.message });
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`✅ Serveur lancé sur http://localhost:${PORT}`);

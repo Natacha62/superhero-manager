@@ -1,24 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
-
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        role?: string;
-        [key: string]: any;
-      };
-    }
-  }
-}
+import { verifyToken } from './authMiddleware';
 
 export const checkRole = (roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const userRole = req.user?.role;
-
-    if (!userRole || !roles.includes(userRole)) {
-      return res.status(403).json({ message: 'Accès interdit : rôle insuffisant' });
-    }
-
-    next();
+    verifyToken(req, res, () => {
+      if (!req.user) {
+        return res.status(401).json({ message: 'Utilisateur non authentifié' });
+      }
+      if (!roles.includes(req.user.role)) {
+        return res.status(403).json({ message: 'Accès interdit' });
+      }
+      next();
+    });
   };
 };
