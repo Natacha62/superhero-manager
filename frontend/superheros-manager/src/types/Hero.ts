@@ -43,4 +43,7 @@ export interface SuperHero {
     md: string;
     lg: string;
   };
+
+  createdAt?: string;
+  updatedAt?: string;
 }

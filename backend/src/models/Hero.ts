@@ -89,6 +89,9 @@ const heroSchema = new Schema<HeroInterface>({
     md: { type: String },
     lg: { type: String },
   },
-}, {collection: 'heroes'});
+}, { 
+  collection: 'heroes',
+  timestamps: true 
+});
 
 export default mongoose.model<HeroInterface>('Hero', heroSchema);

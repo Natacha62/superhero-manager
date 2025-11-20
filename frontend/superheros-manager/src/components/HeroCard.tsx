@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import '../styles/app.css';
 import type { SuperHero } from '../types/Hero';
-import { useAuth } from '../hooks/useAuth'; // ✅ ajoute ton hook d’auth
+import { useAuth } from '../hooks/useAuth';
 
 interface HeroCardProps {
   hero: SuperHero;
@@ -9,10 +9,10 @@ interface HeroCardProps {
 }
 
 export default function HeroCard({ hero, onDelete }: HeroCardProps) {
-  const imagePath = `http://localhost:5000/uploads/${hero.images?.md ?? 'md/default.jpg'}`;
+  const imagePath = `http://localhost:5000/uploads/images/${hero.images?.md ?? 'md/default.jpg'}`;
 
-  const { user } = useAuth(); // ✅ récupère l’utilisateur connecté
-  const canDelete = user?.role === 'admin'; // ✅ seul admin peut supprimer
+  const { user } = useAuth();
+  const canDelete = user?.role === 'admin';
 
   const handleDelete = () => {
     const rawId = hero._id ?? hero.id;
@@ -36,7 +36,7 @@ export default function HeroCard({ hero, onDelete }: HeroCardProps) {
         loading="lazy"
         onError={(e) => {
           e.currentTarget.onerror = null;
-          e.currentTarget.src = 'http://localhost:5000/uploads/md/default.jpg';
+          e.currentTarget.src = 'http://localhost:5000/uploads/images/md/default.jpg';
         }}
         className="hero-image"
       />
@@ -61,7 +61,6 @@ export default function HeroCard({ hero, onDelete }: HeroCardProps) {
           Voir détails
         </Link>
 
-        {/* ✅ Bouton Supprimer visible uniquement pour admin */}
         {canDelete && (
           <button onClick={handleDelete} className="delete-button">
             🗑️ Supprimer

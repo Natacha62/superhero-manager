@@ -2,7 +2,8 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-const uploadDir = path.join(__dirname, '../../uploads/images/md');
+// ✅ Dossier racine pour les nouvelles images
+const uploadDir = path.join(__dirname, '../../uploads/images/new');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }

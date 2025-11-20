@@ -18,9 +18,8 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// ✅ Sert tout le dossier uploads
-app.use('/uploads', express.static(path.join(__dirname, 'uploads', 'images')));
-
+// ✅ Sert tout le dossier uploads/images (md, lg, sm, xs, new)
+app.use('/uploads/images', express.static(path.join(__dirname, '../uploads/images')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/heroes', heroRoutes);

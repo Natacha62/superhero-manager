@@ -1,7 +1,9 @@
 {
   "dependencies": {
     "bcrypt": "^6.0.0",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "mongoose": "^8.19.4",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

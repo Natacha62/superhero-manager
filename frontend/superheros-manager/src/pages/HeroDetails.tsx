@@ -37,7 +37,8 @@ export default function HeroDetails() {
   if (error) return <p>{error}</p>;
   if (!hero) return <p>Chargement...</p>;
 
-  const imagePath = `http://localhost:5000/uploads/${hero.images?.lg ?? 'lg/default.jpg'}`;
+  // ✅ Chemin corrigé pour les images (md, new, etc.)
+  const imagePath = `http://localhost:5000/uploads/images/${hero.images?.lg ?? 'lg/default.jpg'}`;
 
   const handleUpdate = async (formData: FormData) => {
     if (!token || !id) return;
@@ -68,7 +69,15 @@ export default function HeroDetails() {
         <>
           <div className="hero-details-layout">
             <div className="hero-details-image">
-              <img src={imagePath} alt={hero.name} className="hero-image" />
+              <img
+                src={imagePath}
+                alt={hero.name}
+                className="hero-image"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = 'http://localhost:5000/uploads/images/lg/default.jpg';
+                }}
+              />
             </div>
 
             <div className="hero-details-info">

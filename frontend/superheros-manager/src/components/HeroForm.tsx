@@ -38,37 +38,35 @@ export default function HeroForm({ initialData, onSubmit, submitLabel = 'Enregis
   });
   const [file, setFile] = useState<File | null>(null);
 
-  // Préremplissage
   useEffect(() => {
-    if (initialData) {
-      setForm({
-        name: initialData.name,
-        slug: initialData.slug,
-        intelligence: initialData.powerstats.intelligence?.toString() ?? '',
-        strength: initialData.powerstats.strength?.toString() ?? '',
-        speed: initialData.powerstats.speed?.toString() ?? '',
-        durability: initialData.powerstats.durability?.toString() ?? '',
-        power: initialData.powerstats.power?.toString() ?? '',
-        combat: initialData.powerstats.combat?.toString() ?? '',
-        gender: initialData.appearance.gender ?? '',
-        race: initialData.appearance.race ?? '',
-        height: initialData.appearance.height?.join(', ') ?? '',
-        weight: initialData.appearance.weight?.join(', ') ?? '',
-        eyeColor: initialData.appearance.eyeColor ?? '',
-        hairColor: initialData.appearance.hairColor ?? '',
-        fullName: initialData.biography.fullName ?? '',
-        alterEgos: initialData.biography.alterEgos ?? '',
-        aliases: initialData.biography.aliases?.join(', ') ?? '',
-        placeOfBirth: initialData.biography.placeOfBirth ?? '',
-        firstAppearance: initialData.biography.firstAppearance ?? '',
-        publisher: initialData.biography.publisher ?? '',
-        alignment: initialData.biography.alignment ?? '',
-        occupation: initialData.work.occupation ?? '',
-        base: initialData.work.base ?? '',
-        groupAffiliation: initialData.connections.groupAffiliation ?? '',
-        relatives: initialData.connections.relatives ?? ''
-      });
-    }
+    if (!initialData) return;
+    setForm({
+      name: initialData.name ?? '',
+      slug: initialData.slug ?? '',
+      intelligence: initialData.powerstats?.intelligence?.toString() ?? '',
+      strength: initialData.powerstats?.strength?.toString() ?? '',
+      speed: initialData.powerstats?.speed?.toString() ?? '',
+      durability: initialData.powerstats?.durability?.toString() ?? '',
+      power: initialData.powerstats?.power?.toString() ?? '',
+      combat: initialData.powerstats?.combat?.toString() ?? '',
+      gender: initialData.appearance?.gender ?? '',
+      race: initialData.appearance?.race ?? '',
+      height: initialData.appearance?.height?.join(', ') ?? '',
+      weight: initialData.appearance?.weight?.join(', ') ?? '',
+      eyeColor: initialData.appearance?.eyeColor ?? '',
+      hairColor: initialData.appearance?.hairColor ?? '',
+      fullName: initialData.biography?.fullName ?? '',
+      alterEgos: initialData.biography?.alterEgos ?? '',
+      aliases: initialData.biography?.aliases?.join(', ') ?? '',
+      placeOfBirth: initialData.biography?.placeOfBirth ?? '',
+      firstAppearance: initialData.biography?.firstAppearance ?? '',
+      publisher: initialData.biography?.publisher ?? '',
+      alignment: initialData.biography?.alignment ?? '',
+      occupation: initialData.work?.occupation ?? '',
+      base: initialData.work?.base ?? '',
+      groupAffiliation: initialData.connections?.groupAffiliation ?? '',
+      relatives: initialData.connections?.relatives ?? ''
+    });
   }, [initialData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -80,11 +78,9 @@ export default function HeroForm({ initialData, onSubmit, submitLabel = 'Enregis
     e.preventDefault();
     const fd = new FormData();
 
-    // Champs simples
     fd.append('name', form.name);
     fd.append('slug', form.slug);
 
-    // Powerstats
     fd.append('powerstats.intelligence', form.intelligence);
     fd.append('powerstats.strength', form.strength);
     fd.append('powerstats.speed', form.speed);
@@ -92,40 +88,36 @@ export default function HeroForm({ initialData, onSubmit, submitLabel = 'Enregis
     fd.append('powerstats.power', form.power);
     fd.append('powerstats.combat', form.combat);
 
-    // Appearance
     fd.append('appearance.gender', form.gender);
     fd.append('appearance.race', form.race);
-    fd.append('appearance.height', form.height);
-    fd.append('appearance.weight', form.weight);
+    form.height.split(',').forEach((h, i) => fd.append(`appearance.height[${i}]`, h.trim()));
+    form.weight.split(',').forEach((w, i) => fd.append(`appearance.weight[${i}]`, w.trim()));
     fd.append('appearance.eyeColor', form.eyeColor);
     fd.append('appearance.hairColor', form.hairColor);
 
-    // Biography
     fd.append('biography.fullName', form.fullName);
     fd.append('biography.alterEgos', form.alterEgos);
-    fd.append('biography.aliases', form.aliases);
+    form.aliases.split(',').forEach((a, i) => fd.append(`biography.aliases[${i}]`, a.trim()));
     fd.append('biography.placeOfBirth', form.placeOfBirth);
     fd.append('biography.firstAppearance', form.firstAppearance);
     fd.append('biography.publisher', form.publisher);
     fd.append('biography.alignment', form.alignment);
 
-    // Work
     fd.append('work.occupation', form.occupation);
     fd.append('work.base', form.base);
 
-    // Connections
     fd.append('connections.groupAffiliation', form.groupAffiliation);
     fd.append('connections.relatives', form.relatives);
 
-    // Image
     if (file) fd.append('image', file);
 
+    console.log('FormData envoyé:', [...fd.entries()]);
     onSubmit(fd);
   };
 
   return (
     <form className="hero-form" onSubmit={handleSubmit}>
-      <h2>Modifier le héros</h2>
+      <h2>{initialData ? 'Modifier le héros' : 'Ajouter un héros'}</h2>
 
       <input name="name" value={form.name} onChange={handleChange} placeholder="Nom" />
       <input name="slug" value={form.slug} onChange={handleChange} placeholder="Slug" />
@@ -155,7 +147,7 @@ export default function HeroForm({ initialData, onSubmit, submitLabel = 'Enregis
       <input name="publisher" value={form.publisher} onChange={handleChange} placeholder="Éditeur" />
       <input name="alignment" value={form.alignment} onChange={handleChange} placeholder="Alignement" />
 
-      <h3>💼 Travail</h3>
+            <h3>💼 Travail</h3>
       <input name="occupation" value={form.occupation} onChange={handleChange} placeholder="Occupation" />
       <input name="base" value={form.base} onChange={handleChange} placeholder="Base" />
 
@@ -164,7 +156,11 @@ export default function HeroForm({ initialData, onSubmit, submitLabel = 'Enregis
       <input name="relatives" value={form.relatives} onChange={handleChange} placeholder="Famille" />
 
       <h3>🖼️ Image</h3>
-      <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+      />
 
       <button type="submit">{submitLabel}</button>
     </form>
